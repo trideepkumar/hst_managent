@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-950: var(--theme-bg-app);
+  --color-slate-900: var(--theme-bg-nav);
+  --color-slate-800: var(--theme-bg-panel);
+  --color-slate-700: var(--theme-border);
+  
+  /* Map slate/blue to our theme variables for a global drop-in replacement */
+  --color-slate-400: var(--theme-text-muted);
+  --color-blue-600: var(--theme-primary);
+  --color-blue-700: var(--theme-primary-hover);
+  --color-blue-400: var(--theme-primary);
+  --color-blue-500: var(--theme-primary);
+  
+  /* Extra shadow for antigravity UI elements */
+  --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.25);
+}
+
+:root {
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--theme-bg-app);
+  color: var(--theme-text-main);
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--theme-bg-nav); }
+::-webkit-scrollbar-thumb { background: var(--theme-border); border-radius: 4px; }
+
+/* Print styles */
+@media print {
+  body { background: white !important; color: black !important; }
+  .no-print { display: none !important; }
+}
