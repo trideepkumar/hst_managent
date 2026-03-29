@@ -436,7 +436,7 @@ function ItemTable({ doc, setDoc }) {
               <td style={{ ...tdStyle, verticalAlign: 'middle' }}>
                 {row.showInch ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '4px 2px', gap: '2px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', gap: '3px', cursor: 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', gap: '3px', cursor: 'pointer' ,color:'black'}}>
                       <input
                         type="checkbox"
                         checked={row.inch12}
@@ -445,7 +445,7 @@ function ItemTable({ doc, setDoc }) {
                       />
                       12″
                     </label>
-                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', gap: '3px', cursor: 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', gap: '3px', cursor: 'pointer',color:'black' }}>
                       <input
                         type="checkbox"
                         checked={row.inch6}
