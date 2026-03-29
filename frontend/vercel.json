@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://hst-managent.onrender.com/api/:path*"
+    }
+  ]
+}
+
+
+
