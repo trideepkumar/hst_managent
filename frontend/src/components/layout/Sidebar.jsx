@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, FileText, Receipt, X } from 'lucide-react';
 import useUIStore from '../../store/uiStore';
 import { useTheme } from '../../theme.jsx';
+import logo from '../../../public/assests/logo.png'
 
 const nav = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -28,7 +29,7 @@ export default function Sidebar() {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="HST Logo" className="h-10 w-10 object-contain" />
+            <img src={logo} alt="HST Logo" className="h-10 w-10 object-contain" />
             <div>
               <h1 className="text-white font-bold text-sm leading-tight">HST GROUP</h1>
               <p className="text-slate-400 text-xs">Business Manager</p>
