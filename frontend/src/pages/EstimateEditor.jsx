@@ -26,7 +26,7 @@ const defaultDoc = (type) => ({
   type,
   gstMode: 'without',
   date: new Date().toISOString().split('T')[0],
-  companyName: 'HST Traders',
+  companyName: 'HST Infrastructures',
   companyAddress: 'Panmana P O , Kollam\nKerala , 691583',
   companyContact: '+91 9048362043 / +91 8156893302',
   companyGST: '32BVHPH8489P1ZQ',
@@ -177,7 +177,7 @@ function DocHeader({ doc, setDoc }) {
               lineHeight: 1.1,
             }}
           >
-            {doc.companyName || 'HST TRADERS'}
+            {doc.companyName || 'HST Infrastructures'}
           </div>
           <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', whiteSpace: 'pre-line' }}>
             {doc.companyAddress}
@@ -350,7 +350,7 @@ function CompanyClient({ doc, setDoc }) {
           From
         </div>
         <div style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', marginBottom: '3px' }}>
-          {doc.companyName || 'HST TRADERS'}
+          {doc.companyName || 'HST INFRASTRUCTURES'}
         </div>
         <div style={{ fontSize: '10px', color: '#64748b', whiteSpace: 'pre-line', lineHeight: '1.5' }}>
           {doc.companyAddress}
@@ -720,7 +720,7 @@ function Footer({ doc, setDoc }) {
             Authorised Signature
           </div>
           <div style={{ fontSize: '11px', fontWeight: '700', color: '#1e3a5f', marginTop: '2px' }}>
-            {doc.companyName || 'HST TRADERS'}
+            {doc.companyName || 'HST Infrastructures'}
           </div>
         </div>
       </div>
@@ -738,7 +738,7 @@ function Footer({ doc, setDoc }) {
           letterSpacing: '1px',
         }}
       >
-        Thank you for your business — {doc.companyName || 'HST TRADERS'} | {doc.companyContact}
+        Thank you for your business — {doc.companyName || 'HST Infrastructures'} | {doc.companyContact}
       </div>
     </div>
   );
