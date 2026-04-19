@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Package, TrendingUp, DollarSign, AlertCircle, Plus, Edit, Trash2, ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getProducts, saveProduct, deleteProduct, getSales, saveSale } from '../utils/localStorage';
+import { getProducts, createProduct, updateProduct, deleteProduct, getSales, createSale } from '../services/storeService';
 import useUIStore from '../store/uiStore';
 import { formatCurrency, formatDate } from '../utils/formatCurrency';
 
@@ -15,46 +15,68 @@ export default function StoreDashboard() {
   const [showStockModal, setShowStockModal] = useState(false);
   const [form, setForm] = useState({});
 
-  useEffect(() => {
-    setProducts(getProducts());
-    setSales(getSales());
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const refreshData = () => {
-    setProducts(getProducts());
-    setSales(getSales());
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const [productsData, salesData] = await Promise.all([getProducts(), getSales()]);
+      setProducts(productsData);
+      setSales(salesData);
+    } catch (error) {
+      toast.error('Failed to load store data');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSaveProduct = (e) => {
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     if (!form.name || !form.quantity || !form.price) {
       toast.error('Please fill all fields');
       return;
     }
     
-    const newProduct = {
-      id: productModal.editData ? productModal.editData.id : 'PRD-' + Date.now().toString().slice(-6),
-      name: form.name,
-      quantity: Number(form.quantity),
-      price: Number(form.price),
-    };
+    try {
+      const data = {
+        name: form.name,
+        quantity: Number(form.quantity),
+        price: Number(form.price),
+      };
 
-    saveProduct(newProduct);
-    toast.success(productModal.editData ? 'Product updated' : 'Product added');
-    setProductModal({ isOpen: false, editData: null });
-    setForm({});
-    refreshData();
+      if (productModal.editData) {
+        await updateProduct(productModal.editData._id || productModal.editData.id, data);
+        toast.success('Product updated');
+      } else {
+        await createProduct(data);
+        toast.success('Product added');
+      }
+      
+      setProductModal({ isOpen: false, editData: null });
+      setForm({});
+      fetchDashboardData();
+    } catch (error) {
+      toast.error('Failed to save product');
+    }
   };
 
   const handleDeleteProduct = (p) => {
-    openModal('Delete Product', `Are you sure you want to delete ${p.name}?`, () => {
-      deleteProduct(p.id);
-      refreshData();
-      toast.success('Product deleted');
+    openModal('Delete Product', `Are you sure you want to delete ${p.name}?`, async () => {
+      try {
+        await deleteProduct(p._id || p.id);
+        toast.success('Product deleted');
+        fetchDashboardData();
+      } catch (error) {
+        toast.error('Failed to delete product');
+      }
     });
   };
 
-  const handleSellProduct = (e) => {
+  const handleSellProduct = async (e) => {
     e.preventDefault();
     const qtySold = Number(form.quantitySold);
     if (!qtySold || qtySold <= 0) {
@@ -66,31 +88,24 @@ export default function StoreDashboard() {
       return;
     }
 
-    const newSale = {
-      id: 'SL-' + Date.now().toString().slice(-6),
-      productId: sellModal.product.id,
-      productName: sellModal.product.name,
-      quantitySold: qtySold,
-      priceAtSale: sellModal.product.price,
-      totalAmount: qtySold * sellModal.product.price,
-      date: form.saleDate || new Date().toISOString(),
-      customerName: form.customerName || '',
-      customerPhone: form.customerPhone || '',
-      customerAddress: form.customerAddress || '',
-    };
+    try {
+      const saleData = {
+        productId: sellModal.product._id || sellModal.product.id,
+        quantitySold: qtySold,
+        date: form.saleDate || new Date().toISOString(),
+        customerName: form.customerName || '',
+        customerPhone: form.customerPhone || '',
+        customerAddress: form.customerAddress || '',
+      };
 
-    const updatedProduct = {
-      ...sellModal.product,
-      quantity: sellModal.product.quantity - qtySold,
-    };
-
-    saveSale(newSale);
-    saveProduct(updatedProduct);
-    
-    toast.success('Sale recorded successfully!');
-    setSellModal({ isOpen: false, product: null });
-    setForm({});
-    refreshData();
+      await createSale(saleData);
+      toast.success('Sale recorded successfully!');
+      setSellModal({ isOpen: false, product: null });
+      setForm({});
+      fetchDashboardData();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to record sale');
+    }
   };
 
   // Calculations
@@ -123,13 +138,20 @@ export default function StoreDashboard() {
         </div>
         <button
           onClick={() => { setForm({}); setProductModal({ isOpen: true, editData: null }); }}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+          disabled={isLoading}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-400 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
         >
           <Plus size={16} /> New Product
         </button>
       </div>
 
-      {/* Dashboard Stats */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          {/* Dashboard Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <StatCard title="Total Products" value={totalProducts} icon={Package} colorCls="text-blue-400" />
         <StatCard title="Stocks Available" value={totalStock} icon={AlertCircle} colorCls="text-amber-400" onClick={() => setShowStockModal(true)} />
@@ -148,7 +170,7 @@ export default function StoreDashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {products.map(p => (
-              <div key={p.id} className="bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl p-4 transition-colors flex flex-col">
+              <div key={p._id || p.id} className="bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-xl p-4 transition-colors flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                   <div className="min-w-0 pr-2">
                     <h4 className="text-white font-medium truncate">{p.name}</h4>
@@ -187,6 +209,8 @@ export default function StoreDashboard() {
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Product Modal */}
       {productModal.isOpen && (
@@ -279,7 +303,7 @@ export default function StoreDashboard() {
                 <p className="text-slate-400 text-sm text-center py-4">No products available.</p>
               ) : (
                 products.map(p => (
-                  <div key={p.id} className="flex justify-between items-center bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
+                  <div key={p._id || p.id} className="flex justify-between items-center bg-slate-900/50 p-3 rounded-xl border border-slate-700/50">
                     <span className="text-white font-medium text-sm">{p.name}</span>
                     <div className="flex flex-col items-end">
                        <span className={`font-bold text-lg leading-tight ${p.quantity === 0 ? 'text-red-500' : p.quantity < 5 ? 'text-amber-500' : 'text-green-400'}`}>

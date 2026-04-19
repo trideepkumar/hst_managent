@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, Trash2, Calendar, Phone, MapPin, User } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getSales, deleteSale } from '../utils/localStorage';
+import { getSales, deleteSale } from '../services/storeService';
 import useUIStore from '../store/uiStore';
 import { formatCurrency, formatDate } from '../utils/formatCurrency';
 
@@ -9,13 +9,30 @@ export default function SalesRecords() {
   const [sales, setSales] = useState([]);
   const { openModal } = useUIStore();
 
-  useEffect(() => { setSales(getSales()); }, []);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSales = async () => {
+    try {
+      const data = await getSales();
+      setSales(data);
+    } catch (error) {
+      toast.error('Failed to load sales records');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchSales(); }, []);
 
   const handleDelete = (s) => {
-    openModal('Delete Sale Record', `Delete sale record for ${s.productName}? This will NOT return stock to inventory.`, () => {
-      deleteSale(s.id);
-      setSales(getSales());
-      toast.success('Sale record deleted');
+    openModal('Delete Sale Record', `Delete sale record for ${s.productName}? This will NOT return stock to inventory.`, async () => {
+      try {
+        await deleteSale(s._id || s.id);
+        fetchSales();
+        toast.success('Sale record deleted');
+      } catch (error) {
+        toast.error('Failed to delete sale');
+      }
     });
   };
 
@@ -28,7 +45,11 @@ export default function SalesRecords() {
         </div>
       </div>
 
-      {sales.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : sales.length === 0 ? (
         <div className="text-center py-16 bg-slate-800/40 rounded-2xl border border-slate-700/40">
           <div className="p-4 bg-slate-800/50 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4">
             <ShoppingCart size={28} className="text-slate-500" />
@@ -39,7 +60,7 @@ export default function SalesRecords() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {sales.map((s) => (
-            <div key={s.id} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 flex flex-col transition-colors hover:bg-slate-800">
+            <div key={s._id || s.id} className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 flex flex-col transition-colors hover:bg-slate-800">
               <div className="flex justify-between items-start mb-3 border-b border-slate-700/50 pb-3">
                 <div>
                   <h4 className="text-white font-medium">{s.productName}</h4>
@@ -48,7 +69,7 @@ export default function SalesRecords() {
                 <div className="text-right flex space-x-3 items-start">
                   <div>
                     <h4 className="text-green-400 font-bold">{formatCurrency(s.totalAmount)}</h4>
-                    <p className="text-slate-500 text-xs font-mono mt-0.5">{s.id}</p>
+                    <p className="text-slate-500 text-[10px] font-mono mt-0.5 uppercase">{(s._id || s.id).slice(-6)}</p>
                   </div>
                   <button onClick={() => handleDelete(s)} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors shrink-0">
                     <Trash2 size={15} />

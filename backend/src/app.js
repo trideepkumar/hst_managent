@@ -3,6 +3,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const clientRoutes = require('./routes/clientRoutes');
+const productRoutes = require('./routes/productRoutes');
+const saleRoutes = require('./routes/saleRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -18,6 +20,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Routes
 app.use('/api/clients', clientRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/sales', saleRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'HST API is running' }));

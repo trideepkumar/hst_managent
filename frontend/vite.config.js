@@ -99,9 +99,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://hst-managent.onrender.com',
-        changeOrigin: true,
-        secure: true
+        target: 'http://localhost:5001', // Changed from 'https://hst-managent.onrender.com' for local testing
       }
     }
   },
