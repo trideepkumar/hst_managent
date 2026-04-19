@@ -58,6 +58,12 @@ const useClientStore = create((set, get) => ({
     return data;
   },
 
+  updatePayment: async (clientId, paymentId, paymentData) => {
+    const data = await clientService.updatePayment(clientId, paymentId, paymentData);
+    set({ currentClient: data });
+    return data;
+  },
+
   deletePayment: async (clientId, paymentId) => {
     const data = await clientService.deletePayment(clientId, paymentId);
     set({ currentClient: data });
@@ -66,6 +72,12 @@ const useClientStore = create((set, get) => ({
 
   addLabourCost: async (clientId, labourData) => {
     const data = await clientService.addLabourCost(clientId, labourData);
+    set({ currentClient: data });
+    return data;
+  },
+
+  updateLabourCost: async (clientId, labourId, labourData) => {
+    const data = await clientService.updateLabourCost(clientId, labourId, labourData);
     set({ currentClient: data });
     return data;
   },

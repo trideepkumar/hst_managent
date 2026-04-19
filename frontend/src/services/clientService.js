@@ -29,6 +29,11 @@ export const addPayment = async (clientId, data) => {
   return res.data;
 };
 
+export const updatePayment = async (clientId, paymentId, data) => {
+  const res = await api.put(`/clients/${clientId}/payments/${paymentId}`, data);
+  return res.data;
+};
+
 export const deletePayment = async (clientId, paymentId) => {
   const res = await api.delete(`/clients/${clientId}/payments/${paymentId}`);
   return res.data;
@@ -36,6 +41,11 @@ export const deletePayment = async (clientId, paymentId) => {
 
 export const addLabourCost = async (clientId, data) => {
   const res = await api.post(`/clients/${clientId}/labour`, data);
+  return res.data;
+};
+
+export const updateLabourCost = async (clientId, labourId, data) => {
+  const res = await api.put(`/clients/${clientId}/labour/${labourId}`, data);
   return res.data;
 };
 

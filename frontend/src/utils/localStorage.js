@@ -33,3 +33,29 @@ export const saveInvoice = (invoice) => {
 export const deleteInvoice = (id) => {
   saveAll(INVOICES_KEY, getAll(INVOICES_KEY).filter((e) => e.id !== id));
 };
+
+// Store: Products
+const PRODUCTS_KEY = 'hst_products';
+export const getProducts = () => getAll(PRODUCTS_KEY);
+export const saveProduct = (product) => {
+  const all = getAll(PRODUCTS_KEY);
+  const idx = all.findIndex((p) => p.id === product.id);
+  if (idx >= 0) all[idx] = product;
+  else all.unshift(product);
+  saveAll(PRODUCTS_KEY, all);
+};
+export const deleteProduct = (id) => {
+  saveAll(PRODUCTS_KEY, getAll(PRODUCTS_KEY).filter((p) => p.id !== id));
+};
+
+// Store: Sales
+const SALES_KEY = 'hst_sales';
+export const getSales = () => getAll(SALES_KEY);
+export const saveSale = (sale) => {
+  const all = getAll(SALES_KEY);
+  all.unshift(sale); // Sales are mostly append-only, but we can edit them too.
+  saveAll(SALES_KEY, all);
+};
+export const deleteSale = (id) => {
+  saveAll(SALES_KEY, getAll(SALES_KEY).filter((s) => s.id !== id));
+};

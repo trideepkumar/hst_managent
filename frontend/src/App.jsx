@@ -11,6 +11,8 @@ import EstimateList from './pages/EstimateList';
 import EstimateEditor from './pages/EstimateEditor';
 import InvoiceList from './pages/InvoiceList';
 import InvoiceEditor from './pages/InvoiceEditor';
+import StoreDashboard from './pages/StoreDashboard';
+import SalesRecords from './pages/SalesRecords';
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
           <main className="flex-1 overflow-y-auto">
             <Routes>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/store" element={<StoreDashboard />} />
+              <Route path="/sales" element={<SalesRecords />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/clients/add" element={<AddEditClient />} />
               <Route path="/clients/:id/edit" element={<AddEditClient />} />

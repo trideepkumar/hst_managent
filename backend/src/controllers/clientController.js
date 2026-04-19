@@ -96,6 +96,25 @@ const deletePayment = async (req, res, next) => {
   }
 };
 
+// PUT /api/clients/:id/payments/:paymentId
+const updatePayment = async (req, res, next) => {
+  try {
+    const { amount, date, note } = req.body;
+    if (!amount || isNaN(amount)) return res.status(400).json({ success: false, message: 'Valid amount is required' });
+    const client = await Client.findById(req.params.id);
+    if (!client) return res.status(404).json({ success: false, message: 'Client not found' });
+    const payment = client.payments.id(req.params.paymentId);
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
+    payment.amount = Number(amount);
+    if (date) payment.date = date;
+    if (note !== undefined) payment.note = note;
+    await client.save();
+    res.json({ success: true, data: client });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // POST /api/clients/:id/labour
 const addLabourCost = async (req, res, next) => {
   try {
@@ -117,6 +136,25 @@ const deleteLabourCost = async (req, res, next) => {
     const client = await Client.findById(req.params.id);
     if (!client) return res.status(404).json({ success: false, message: 'Client not found' });
     client.labourCosts = client.labourCosts.filter(l => l._id.toString() !== req.params.labourId);
+    await client.save();
+    res.json({ success: true, data: client });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// PUT /api/clients/:id/labour/:labourId
+const updateLabourCost = async (req, res, next) => {
+  try {
+    const { amount, date, description } = req.body;
+    if (!amount || isNaN(amount)) return res.status(400).json({ success: false, message: 'Valid amount is required' });
+    const client = await Client.findById(req.params.id);
+    if (!client) return res.status(404).json({ success: false, message: 'Client not found' });
+    const labour = client.labourCosts.id(req.params.labourId);
+    if (!labour) return res.status(404).json({ success: false, message: 'Labour cost not found' });
+    labour.amount = Number(amount);
+    if (date) labour.date = date;
+    if (description !== undefined) labour.description = description;
     await client.save();
     res.json({ success: true, data: client });
   } catch (err) {
@@ -148,4 +186,4 @@ const getDashboard = async (req, res, next) => {
   }
 };
 
-module.exports = { getClients, getClientById, createClient, updateClient, deleteClient, addPayment, deletePayment, addLabourCost, deleteLabourCost, getDashboard };
+module.exports = { getClients, getClientById, createClient, updateClient, deleteClient, addPayment, updatePayment, deletePayment, addLabourCost, updateLabourCost, deleteLabourCost, getDashboard };

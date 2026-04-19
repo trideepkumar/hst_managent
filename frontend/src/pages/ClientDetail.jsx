@@ -17,8 +17,8 @@ const SectionTitle = ({ icon: I, label }) => (
 
 const inputCls = "w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors";
 
-function AddModal({ title, fields, onSave, onClose }) {
-  const [form, setForm] = useState({});
+function AddModal({ title, fields, onSave, onClose, initialData = {} }) {
+  const [form, setForm] = useState(initialData);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -42,8 +42,8 @@ function AddModal({ title, fields, onSave, onClose }) {
           <div key={f.key}>
             <label className="text-slate-400 text-xs mb-1 block">{f.label}</label>
             {f.type === 'textarea'
-              ? <textarea className={`${inputCls} resize-none h-16`} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))} placeholder={f.placeholder} />
-              : <input className={inputCls} type={f.type || 'text'} step={f.step} min={f.min} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))} placeholder={f.placeholder} />
+              ? <textarea className={`${inputCls} resize-none h-16`} value={form[f.key] || ''} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))} placeholder={f.placeholder} />
+              : <input className={inputCls} value={form[f.key] || ''} type={f.type || 'text'} step={f.step} min={f.min} onChange={e => setForm(p => ({...p, [f.key]: e.target.value}))} placeholder={f.placeholder} />
             }
           </div>
         ))}
@@ -61,10 +61,10 @@ function AddModal({ title, fields, onSave, onClose }) {
 export default function ClientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentClient: client, fetchClient, deletePayment, deleteLabourCost, addPayment, addLabourCost, loading } = useClientStore();
+  const { currentClient: client, fetchClient, deletePayment, updatePayment, deleteLabourCost, updateLabourCost, addPayment, addLabourCost, loading } = useClientStore();
   const { openModal } = useUIStore();
-  const [paymentModal, setPaymentModal] = useState(false);
-  const [labourModal, setLabourModal] = useState(false);
+  const [paymentModal, setPaymentModal] = useState({ isOpen: false, editData: null });
+  const [labourModal, setLabourModal] = useState({ isOpen: false, editData: null });
 
   useEffect(() => { fetchClient(id); }, [id, fetchClient]);
 
@@ -169,7 +169,7 @@ export default function ClientDetail() {
           <div className="flex items-center justify-between mb-3">
             <SectionTitle icon={DollarSign} label="Payments" />
             <button
-              onClick={() => setPaymentModal(true)}
+              onClick={() => setPaymentModal({ isOpen: true, editData: null })}
               className="no-print flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 bg-blue-400/10 hover:bg-blue-400/20 px-3 py-1.5 rounded-lg transition-colors"
             >
               <Plus size={13} /> Add Payment
@@ -185,9 +185,14 @@ export default function ClientDetail() {
                     <p className="text-white text-sm font-medium print:text-gray-900">{formatCurrency(p.amount)}</p>
                     <p className="text-slate-500 text-xs print:text-gray-400">{formatDate(p.date)}{p.note ? ` · ${p.note}` : ''}</p>
                   </div>
-                  <button onClick={() => handleDelPayment(p)} className="no-print p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setPaymentModal({ isOpen: true, editData: p })} className="no-print p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors">
+                      <Edit size={14} />
+                    </button>
+                    <button onClick={() => handleDelPayment(p)} className="no-print p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
               {/* Payment Total Row */}
@@ -204,7 +209,7 @@ export default function ClientDetail() {
           <div className="flex items-center justify-between mb-3">
             <SectionTitle icon={Wrench} label="Labour Costs" />
             <button
-              onClick={() => setLabourModal(true)}
+              onClick={() => setLabourModal({ isOpen: true, editData: null })}
               className="no-print flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 bg-purple-400/10 hover:bg-purple-400/20 px-3 py-1.5 rounded-lg transition-colors"
             >
               <Plus size={13} /> Add Labour
@@ -220,9 +225,14 @@ export default function ClientDetail() {
                     <p className="text-white text-sm font-medium print:text-gray-900">{formatCurrency(l.amount)}</p>
                     <p className="text-slate-500 text-xs print:text-gray-400">{formatDate(l.date)}{l.description ? ` · ${l.description}` : ''}</p>
                   </div>
-                  <button onClick={() => handleDelLabour(l)} className="no-print p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => setLabourModal({ isOpen: true, editData: l })} className="no-print p-1.5 text-slate-400 hover:text-purple-400 hover:bg-purple-400/10 rounded-lg transition-colors">
+                      <Edit size={14} />
+                    </button>
+                    <button onClick={() => handleDelLabour(l)} className="no-print p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               ))}
               {/* Labour Total Row */}
@@ -240,37 +250,49 @@ export default function ClientDetail() {
           <p className="text-gray-400 text-xs">Confidential</p>
         </div>
 
-        {/* Add Payment Modal */}
-        {paymentModal && (
+        {/* Add/Edit Payment Modal */}
+        {paymentModal.isOpen && (
           <AddModal
-            title="Add Payment"
+            title={paymentModal.editData ? "Edit Payment" : "Add Payment"}
+            initialData={paymentModal.editData ? { ...paymentModal.editData, date: paymentModal.editData.date ? paymentModal.editData.date.split('T')[0] : '' } : {}}
             fields={[
               { key: 'amount', label: 'Amount (₹)', type: 'number', min: '0', step: '0.01', placeholder: '0', required: true },
               { key: 'date', label: 'Date', type: 'date', placeholder: '', required: false },
               { key: 'note', label: 'Note (optional)', type: 'text', placeholder: 'Payment note', required: false },
             ]}
             onSave={async (f) => {
-              await addPayment(id, { amount: Number(f.amount), date: f.date || new Date(), note: f.note });
-              toast.success('Payment added!');
+              if (paymentModal.editData) {
+                await updatePayment(id, paymentModal.editData._id, { amount: Number(f.amount), date: f.date || new Date(), note: f.note });
+                toast.success('Payment updated!');
+              } else {
+                await addPayment(id, { amount: Number(f.amount), date: f.date || new Date(), note: f.note });
+                toast.success('Payment added!');
+              }
             }}
-            onClose={() => setPaymentModal(false)}
+            onClose={() => setPaymentModal({ isOpen: false, editData: null })}
           />
         )}
 
-        {/* Add Labour Modal */}
-        {labourModal && (
+        {/* Add/Edit Labour Modal */}
+        {labourModal.isOpen && (
           <AddModal
-            title="Add Labour Cost"
+            title={labourModal.editData ? "Edit Labour Cost" : "Add Labour Cost"}
+            initialData={labourModal.editData ? { ...labourModal.editData, date: labourModal.editData.date ? labourModal.editData.date.split('T')[0] : '' } : {}}
             fields={[
               { key: 'amount', label: 'Amount (₹)', type: 'number', min: '0', step: '0.01', placeholder: '0', required: true },
               { key: 'date', label: 'Date', type: 'date', placeholder: '', required: false },
               { key: 'description', label: 'Description (optional)', type: 'textarea', placeholder: 'Labour details', required: false },
             ]}
             onSave={async (f) => {
-              await addLabourCost(id, { amount: Number(f.amount), date: f.date || new Date(), description: f.description });
-              toast.success('Labour cost added!');
+              if (labourModal.editData) {
+                await updateLabourCost(id, labourModal.editData._id, { amount: Number(f.amount), date: f.date || new Date(), description: f.description });
+                toast.success('Labour cost updated!');
+              } else {
+                await addLabourCost(id, { amount: Number(f.amount), date: f.date || new Date(), description: f.description });
+                toast.success('Labour cost added!');
+              }
             }}
-            onClose={() => setLabourModal(false)}
+            onClose={() => setLabourModal({ isOpen: false, editData: null })}
           />
         )}
       </div>

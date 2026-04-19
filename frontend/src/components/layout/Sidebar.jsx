@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, Receipt, X } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Receipt, X, Store, ShoppingBag } from 'lucide-react';
 import useUIStore from '../../store/uiStore';
 import { useTheme } from '../../theme.jsx';
 import logo from '../../../public/assests/logo.png'
 
 const nav = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/store', icon: Store, label: 'Store' },
+  { to: '/sales', icon: ShoppingBag, label: 'Sales Records' },
   { to: '/clients', icon: Users, label: 'Clients' },
   { to: '/estimates', icon: FileText, label: 'Estimates' },
   { to: '/invoices', icon: Receipt, label: 'Invoices' },
