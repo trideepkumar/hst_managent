@@ -2,43 +2,32 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Central theme definition file
 export const themes = {
-  antigravity: {
-    name: 'Antigravity (Dark)',
+  enterprise_dark: {
+    name: 'Enterprise Dark',
     variables: {
-      '--theme-bg-app': '#030014',
-      '--theme-bg-nav': '#090324',
-      '--theme-bg-panel': '#110934',
-      '--theme-border': '#2d1b6e',
-      '--theme-text-main': '#ffffff',
-      '--theme-text-muted': '#a78bfa',
-      '--theme-primary': '#8b5cf6',
-      '--theme-primary-hover': '#7c3aed',
+      '--theme-bg-app': '#0B0F19', // Very deep blue/black
+      '--theme-bg-nav': '#111827', // Slate 900
+      '--theme-bg-panel': '#1F2937', // Slate 800
+      '--theme-border': '#374151', // Slate 700
+      '--theme-text-main': '#F9FAFB', // Gray 50
+      '--theme-text-muted': '#9CA3AF', // Gray 400
+      '--theme-primary': '#4F46E5', // Indigo 600
+      '--theme-primary-hover': '#4338CA', // Indigo 700
+      '--theme-accent': '#06B6D4', // Cyan 500
     }
   },
-  standard: {
-    name: 'Standard Dark',
+  corporate_light: {
+    name: 'Corporate Light',
     variables: {
-      '--theme-bg-app': '#020617',
-      '--theme-bg-nav': '#0f172a',
-      '--theme-bg-panel': '#1e293b',
-      '--theme-border': '#334155',
-      '--theme-text-main': '#f8fafc',
-      '--theme-text-muted': '#94a3b8',
-      '--theme-primary': '#2563eb',
-      '--theme-primary-hover': '#1d4ed8',
-    }
-  },
-  light: {
-    name: 'Light Mode',
-    variables: {
-      '--theme-bg-app': '#f1f5f9',
-      '--theme-bg-nav': '#ffffff',
-      '--theme-bg-panel': '#ffffff',
-      '--theme-border': '#e2e8f0',
-      '--theme-text-main': '#0f172a',
-      '--theme-text-muted': '#64748b',
-      '--theme-primary': '#3b82f6',
-      '--theme-primary-hover': '#2563eb',
+      '--theme-bg-app': '#F3F4F6', // Gray 100
+      '--theme-bg-nav': '#FFFFFF', // White
+      '--theme-bg-panel': '#FFFFFF', // White
+      '--theme-border': '#E5E7EB', // Gray 200
+      '--theme-text-main': '#111827', // Gray 900
+      '--theme-text-muted': '#6B7280', // Gray 500
+      '--theme-primary': '#2563EB', // Blue 600
+      '--theme-primary-hover': '#1D4ED8', // Blue 700
+      '--theme-accent': '#0284C7', // Light Blue 600
     }
   }
 };
@@ -47,11 +36,11 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    return localStorage.getItem('app-theme') || 'antigravity';
+    return localStorage.getItem('app-theme') || 'enterprise_dark';
   });
 
   useEffect(() => {
-    const themeParams = themes[currentTheme]?.variables || themes.antigravity.variables;
+    const themeParams = themes[currentTheme]?.variables || themes.enterprise_dark.variables;
     
     // Apply variables to root style
     const root = document.documentElement;
