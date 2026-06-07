@@ -59,7 +59,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-white font-bold text-2xl">Dashboard</h2>
-          <p className="text-slate-400 text-sm mt-0.5">HST GROUP overview</p>
+          <p className="text-slate-400 text-sm mt-0.5">HST INFRASTRUCTURES overview</p>
         </div>
         <Link
           to="/clients/add"
@@ -81,12 +81,12 @@ export default function Dashboard() {
           </>
         ) : (
           <>
-            <StatCard
+            {/* <StatCard
               icon={Users}
               label="Total Clients"
               value={d.totalClients || 0}
               color="bg-blue-600"
-            />
+            /> */}
             <StatCard
               icon={TrendingUp}
               label="Revenue Collected"
@@ -110,12 +110,12 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Recent Clients */}
+      {/* Recent Sales */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-white font-semibold text-base">Recent Clients</h3>
+          <h3 className="text-white font-semibold text-base">Recent Sales</h3>
           <Link
-            to="/clients"
+            to="/sales"
             className="text-blue-400 text-sm flex items-center gap-1 hover:text-blue-300 transition-colors"
           >
             View all <ArrowRight size={14} />
@@ -129,40 +129,33 @@ export default function Dashboard() {
               <ClientRowSkeleton />
               <ClientRowSkeleton />
             </>
-          ) : (d.recentClients || []).length === 0 ? (
+          ) : (d.recentSales || []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <div className="bg-slate-800/60 border border-slate-700/40 rounded-full p-4">
-                <Users size={28} className="text-slate-500" />
+                <TrendingUp size={28} className="text-slate-500" />
               </div>
-              <p className="text-slate-400 text-sm font-medium">No clients yet</p>
-              <p className="text-slate-600 text-xs">Get started by adding your first client</p>
-              <Link
-                to="/clients/add"
-                className="mt-1 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
-              >
-                <Plus size={14} /> Add First Client
-              </Link>
+              <p className="text-slate-400 text-sm font-medium">No sales yet</p>
+              <p className="text-slate-600 text-xs">Sales records will appear here</p>
             </div>
           ) : (
-            (d.recentClients || []).map((c) => (
-              <Link
-                key={c._id}
-                to={`/clients/${c._id}`}
-                className="flex items-center justify-between bg-slate-800/50 hover:bg-slate-800 border border-slate-700/40 rounded-xl px-4 py-3 transition-colors group"
+            (d.recentSales || []).map((sale) => (
+              <div
+                key={sale._id}
+                className="flex items-center justify-between bg-slate-800/50 border border-slate-700/40 rounded-xl px-4 py-3 group"
               >
                 <div>
-                  <p className="text-white font-medium text-sm">{c.name}</p>
+                  <p className="text-white font-medium text-sm">{sale.productName || 'Sale'}</p>
                   <p className="text-slate-500 text-xs mt-0.5">
-                    Remaining: {formatCurrency(c.remainingPayment)}
+                    Qty: {sale.quantity}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className={`font-semibold text-sm ${c.profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {c.profitLoss >= 0 ? '+' : ''}{formatCurrency(c.profitLoss)}
+                  <p className="font-semibold text-sm text-green-400">
+                    {formatCurrency(sale.totalAmount)}
                   </p>
-                  <p className="text-slate-500 text-xs">P/L</p>
+                  <p className="text-slate-500 text-xs">Total</p>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>

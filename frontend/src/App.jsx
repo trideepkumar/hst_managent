@@ -13,8 +13,23 @@ import InvoiceList from './pages/InvoiceList';
 import InvoiceEditor from './pages/InvoiceEditor';
 import StoreDashboard from './pages/StoreDashboard';
 import SalesRecords from './pages/SalesRecords';
+import Login from './pages/Login';
+import { useState } from 'react';
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem('isAuthenticated') === 'true'
+  );
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Login onLogin={() => setIsAuthenticated(true)} />
+        <Toaster position="top-center" />
+      </>
+    );
+  }
+
   return (
     <BrowserRouter>
       <div className="flex h-screen bg-slate-950 overflow-hidden">

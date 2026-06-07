@@ -1,4 +1,5 @@
 const Client = require('../models/Client');
+const Sale = require('../models/Sale');
 
 // GET /api/clients
 const getClients = async (req, res, next) => {
@@ -180,7 +181,8 @@ const getDashboard = async (req, res, next) => {
       remainingPayment: c.remainingPayment,
       profitLoss: c.profitLoss,
     }));
-    res.json({ success: true, data: { totalClients, totalRevenue, totalLabour, totalProfit, totalPending, recentClients } });
+    const recentSales = await Sale.find().sort({ createdAt: -1 }).limit(5);
+    res.json({ success: true, data: { totalClients, totalRevenue, totalLabour, totalProfit, totalPending, recentClients, recentSales } });
   } catch (err) {
     next(err);
   }

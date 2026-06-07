@@ -97,7 +97,7 @@ export default function ClientDetail() {
 
         {/* Print Header */}
         <div className="hidden print:block print:mb-4 print:border-b print:border-gray-200 print:pb-4">
-          <h1 className="text-xl font-bold text-gray-900">HST GROUP — Client Report</h1>
+          <h1 className="text-xl font-bold text-gray-900">HST INFRASTRUCTURES — Client Report</h1>
           <p className="text-gray-400 text-xs mt-1">{new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
 

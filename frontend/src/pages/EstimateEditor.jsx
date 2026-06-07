@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Save, Printer, Download, Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { saveEstimate, getEstimates, saveInvoice, getInvoices } from '../utils/localStorage';
+import { getDocumentById, saveDocument } from '../services/documentService';
 import { generateDocNumber } from '../utils/formatCurrency';
 import html2pdf from 'html2pdf.js';
 import logo from '../../public/assests/logo.png';
@@ -84,7 +84,7 @@ const defaultDoc = (type) => ({
   gstMode: 'with',
   date: new Date().toISOString().split('T')[0],
   // Seller
-  companyName: 'HST Infrastructures',
+  companyName: 'HST INFRASTRUCTURES',
   companyAddress: 'Panmana P O , Kollam\nKerala , 691583',
   companyContact: '+91 9048362043 / +91 8156893302',
   companyGST: '32BVHPH8489P1ZQ',
@@ -672,23 +672,35 @@ export default function EstimateEditor({ type = 'estimate' }) {
   const [busy, setBusy] = useState(false);
 
   const isEstimate = type === 'estimate';
-  const storage = isEstimate ? { get: getEstimates, save: saveEstimate } : { get: getInvoices, save: saveInvoice };
   const listPath = isEstimate ? '/estimates' : '/invoices';
 
   useEffect(() => {
-    if (id) {
-      const found = storage.get().find((d) => d.id === id);
-      if (found) return setDoc(found);
-    }
-    setDoc(defaultDoc(type));
+    const loadDoc = async () => {
+      if (id) {
+        try {
+          const found = await getDocumentById(id);
+          if (found && found.id) return setDoc(found);
+        } catch (err) {
+          toast.error('Failed to load document');
+        }
+      }
+      setDoc(defaultDoc(type));
+    };
+    loadDoc();
   }, [id, type]); // eslint-disable-line
 
-  const saveDoc = useCallback((currentDoc) => {
-    try { storage.save(currentDoc); return true; } catch { return false; }
+  const saveDoc = useCallback(async (currentDoc) => {
+    try { await saveDocument(currentDoc); return true; } catch { return false; }
   }, []); // eslint-disable-line
 
-  const handleSave = () => { if (!doc) return; saveDoc(doc) ? toast.success('Saved!') : toast.error('Failed to save'); };
-  const handlePrint = () => { if (!doc) return; saveDoc(doc); window.print(); };
+  const handleSave = async () => { 
+    if (!doc) return; 
+    setBusy(true);
+    const success = await saveDoc(doc);
+    success ? toast.success('Saved!') : toast.error('Failed to save'); 
+    setBusy(false);
+  };
+  const handlePrint = async () => { if (!doc) return; await saveDoc(doc); window.print(); };
 
   const handleDownload = async () => {
     if (!doc || !printRef.current || busy) return;
@@ -696,7 +708,7 @@ export default function EstimateEditor({ type = 'estimate' }) {
     const safety = setTimeout(() => setBusy(false), 45000);
     const tid = toast.loading('Generating PDF…');
     try {
-      saveDoc(doc);
+      await saveDoc(doc);
       const blob = await buildPdfBlob(printRef.current, `${doc.id}.pdf`);
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement('a'), { href: url, download: `${doc.id}.pdf` });
@@ -714,18 +726,18 @@ export default function EstimateEditor({ type = 'estimate' }) {
     setBusy(true);
     const tid = toast.loading('Preparing PDF…');
     try {
-      saveDoc(doc);
+      await saveDoc(doc);
       const blob = await buildPdfBlob(printRef.current, `${doc.id}.pdf`);
       const file = new File([blob], `HST_${doc.id}.pdf`, { type: 'application/pdf', lastModified: Date.now() });
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `${doc.type} ${doc.id}`, text: `Invoice from HST GROUP\nDoc: ${doc.id}\nAmount: ₹${doc.netAmount}` });
+        await navigator.share({ files: [file], title: `${doc.type} ${doc.id}`, text: `Invoice from HST INFRASTRUCTURES\nDoc: ${doc.id}\nAmount: ₹${doc.netAmount}` });
         toast.success('Shared!', { id: tid });
       } else {
         const url = URL.createObjectURL(blob);
         const a = Object.assign(document.createElement('a'), { href: url, download: `${doc.id}.pdf` });
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         toast.success('PDF saved — attach in WhatsApp.', { id: tid });
-        setTimeout(() => window.open(`https://wa.me/?text=${encodeURIComponent(`Invoice ${doc.id} from HST GROUP`)}`, '_blank'), 1500);
+        setTimeout(() => window.open(`https://wa.me/?text=${encodeURIComponent(`Invoice ${doc.id} from HST INFRASTRUCTURES`)}`, '_blank'), 1500);
       }
     } catch (err) { toast.error('Sharing failed. Try downloading PDF.', { id: tid }); }
     finally { setBusy(false); }

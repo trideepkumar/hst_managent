@@ -2,21 +2,37 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, FileText, Trash2, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getEstimates, deleteEstimate } from '../utils/localStorage';
+import { getDocuments, deleteDocument } from '../services/documentService';
 import useUIStore from '../store/uiStore';
 import { formatDate } from '../utils/formatCurrency';
 
 export default function EstimateList() {
   const [estimates, setEstimates] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { openModal } = useUIStore();
 
-  useEffect(() => { setEstimates(getEstimates()); }, []);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const data = await getDocuments('estimate');
+      setEstimates(data);
+    } catch (err) {
+      toast.error('Failed to load estimates');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const handleDelete = (est) => {
-    openModal('Delete Estimate', `Delete estimate "${est.id}"?`, () => {
-      deleteEstimate(est.id);
-      setEstimates(getEstimates());
-      toast.success('Estimate deleted');
+    openModal('Delete Estimate', `Delete estimate "${est.id}"?`, async () => {
+      try {
+        await deleteDocument(est.id);
+        toast.success('Estimate deleted');
+        loadData();
+      } catch (err) {
+        toast.error('Failed to delete estimate');
+      }
     });
   };
 
@@ -32,7 +48,12 @@ export default function EstimateList() {
         </Link>
       </div>
 
-      {estimates.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-16">
+          <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400 font-medium">Loading estimates...</p>
+        </div>
+      ) : estimates.length === 0 ? (
         <div className="text-center py-16">
           <div className="p-4 bg-slate-800/50 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4">
             <FileText size={28} className="text-slate-500" />

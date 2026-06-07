@@ -2,21 +2,37 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Receipt, Trash2, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getInvoices, deleteInvoice } from '../utils/localStorage';
+import { getDocuments, deleteDocument } from '../services/documentService';
 import useUIStore from '../store/uiStore';
 import { formatDate } from '../utils/formatCurrency';
 
 export default function InvoiceList() {
   const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { openModal } = useUIStore();
 
-  useEffect(() => { setInvoices(getInvoices()); }, []);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const data = await getDocuments('invoice');
+      setInvoices(data);
+    } catch (err) {
+      toast.error('Failed to load invoices');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const handleDelete = (inv) => {
-    openModal('Delete Invoice', `Delete invoice "${inv.id}"?`, () => {
-      deleteInvoice(inv.id);
-      setInvoices(getInvoices());
-      toast.success('Invoice deleted');
+    openModal('Delete Invoice', `Delete invoice "${inv.id}"?`, async () => {
+      try {
+        await deleteDocument(inv.id);
+        toast.success('Invoice deleted');
+        loadData();
+      } catch (err) {
+        toast.error('Failed to delete invoice');
+      }
     });
   };
 
@@ -32,7 +48,12 @@ export default function InvoiceList() {
         </Link>
       </div>
 
-      {invoices.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-16">
+          <div className="h-6 w-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-400 font-medium">Loading invoices...</p>
+        </div>
+      ) : invoices.length === 0 ? (
         <div className="text-center py-16">
           <div className="p-4 bg-slate-800/50 rounded-2xl w-16 h-16 flex items-center justify-center mx-auto mb-4">
             <Receipt size={28} className="text-slate-500" />

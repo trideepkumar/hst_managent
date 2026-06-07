@@ -11,17 +11,20 @@ const app = express();
 
 // Security & parsing middleware
 app.use(helmet());
-app.use(cors({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE'] }));
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
+const documentRoutes = require('./routes/documentRoutes');
+
 // Routes
 app.use('/api/clients', clientRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/sales', saleRoutes);
+app.use('/api/documents', documentRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'HST API is running' }));

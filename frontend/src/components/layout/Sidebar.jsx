@@ -8,7 +8,7 @@ const nav = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/store', icon: Store, label: 'Store' },
   { to: '/sales', icon: ShoppingBag, label: 'Sales Records' },
-  { to: '/clients', icon: Users, label: 'Clients' },
+  // { to: '/clients', icon: Users, label: 'Clients' },
   { to: '/estimates', icon: FileText, label: 'Estimates' },
   { to: '/invoices', icon: Receipt, label: 'Invoices' },
 ];
@@ -33,7 +33,7 @@ export default function Sidebar() {
           <div className="flex items-center gap-3">
             <img src={logo} alt="HST Logo" className="h-10 w-10 object-contain" />
             <div>
-              <h1 className="text-white font-bold text-sm leading-tight">HST GROUP</h1>
+              <h1 className="text-white font-bold text-sm leading-tight">HST INFRASTRUCTURES</h1>
               <p className="text-slate-400 text-xs">Business Manager</p>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function Sidebar() {
             </select>
           </div>
           <div>
-            <p className="text-slate-500 text-[10px] text-center">HST GROUP © 2025</p>
+            <p className="text-slate-500 text-[10px] text-center">HST INFRASTRUCTURES © 2025</p>
             <p className="text-slate-600 text-[10px] text-center">Panmana P O, Kollam</p>
           </div>
         </div>
